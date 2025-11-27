@@ -68,13 +68,17 @@ class MainActivity : ComponentActivity() {
         // 初始化引擎
         LaunchedEffect(Unit) {
             scope.launch {
+                android.util.Log.i("MainActivity", "LaunchedEffect: Starting engine initialization...")
                 val success = asrEngine.initialize()
+                android.util.Log.i("MainActivity", "Engine initialization result: $success")
                 isInitialized = success
+                android.util.Log.i("MainActivity", "isInitialized state set to: $isInitialized")
                 statusText = if (success) {
                     "✓ 引擎已就绪，长按按钮开始录音"
                 } else {
                     "✗ 引擎初始化失败"
                 }
+                android.util.Log.i("MainActivity", "Status text: $statusText")
             }
         }
 
@@ -155,21 +159,29 @@ class MainActivity : ComponentActivity() {
 
                 // 录音按钮（长按录音）
                 Button(
-                    onClick = { /* 点击无效，需要长按 */ },
+                    onClick = {
+                        android.util.Log.d("MainActivity", "Button onClick (should not be used)")
+                    },
                     modifier = Modifier
                         .size(120.dp)
                         .pointerInput(isInitialized) {
+                            android.util.Log.d("MainActivity", "pointerInput initialized, isInitialized=$isInitialized")
                             detectTapGestures(
                                 onPress = {
+                                    android.util.Log.i("MainActivity", "========== BUTTON PRESSED ==========")
+                                    android.util.Log.d("MainActivity", "isInitialized=$isInitialized")
                                     if (isInitialized) {
                                         // 按下 - 开始录音
+                                        android.util.Log.i("MainActivity", "Setting isRecording=true")
                                         isRecording = true
                                         startRecognition(
                                             onResult = { result ->
                                                 recognitionText = result
                                             }
                                         )
+                                        android.util.Log.d("MainActivity", "Waiting for release...")
                                         tryAwaitRelease()
+                                        android.util.Log.i("MainActivity", "========== BUTTON RELEASED ==========")
                                         // 释放 - 停止录音
                                         isRecording = false
                                         stopRecognition(
@@ -177,6 +189,8 @@ class MainActivity : ComponentActivity() {
                                                 recognitionText = result
                                             }
                                         )
+                                    } else {
+                                        android.util.Log.w("MainActivity", "Button pressed but engine not initialized!")
                                     }
                                 }
                             )
@@ -213,34 +227,53 @@ class MainActivity : ComponentActivity() {
      * 开始识别
      */
     private fun startRecognition(onResult: (String) -> Unit) {
-        // 重置状态
-        asrEngine.reset()
+        android.util.Log.i("MainActivity", "========== START RECOGNITION ==========")
+        try {
+            // 重置状态
+            android.util.Log.d("MainActivity", "Resetting ASR engine...")
+            asrEngine.reset()
 
-        // 开始录音
-        audioRecorder = AudioRecorder { audioData ->
-            // 推理音频数据
-            val result = asrEngine.infer(audioData, isFinished = false)
-            if (result.isNotEmpty()) {
-                runOnUiThread {
-                    onResult(result)
+            // 开始录音
+            android.util.Log.d("MainActivity", "Creating AudioRecorder...")
+            audioRecorder = AudioRecorder { audioData ->
+                android.util.Log.v("MainActivity", "Received audio data: ${audioData.size} bytes")
+                // 推理音频数据
+                val result = asrEngine.infer(audioData, isFinished = false)
+                android.util.Log.d("MainActivity", "Inference result: $result")
+                if (result.isNotEmpty()) {
+                    runOnUiThread {
+                        onResult(result)
+                    }
                 }
             }
+            android.util.Log.d("MainActivity", "Starting recording...")
+            audioRecorder?.startRecording()
+            android.util.Log.i("MainActivity", "Recording started successfully!")
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error in startRecognition", e)
         }
-        audioRecorder?.startRecording()
     }
 
     /**
      * 停止识别
      */
     private fun stopRecognition(onFinalResult: (String) -> Unit) {
-        // 停止录音
-        audioRecorder?.stopRecording()
-        audioRecorder = null
+        android.util.Log.i("MainActivity", "========== STOP RECOGNITION ==========")
+        try {
+            // 停止录音
+            android.util.Log.d("MainActivity", "Stopping recording...")
+            audioRecorder?.stopRecording()
+            audioRecorder = null
 
-        // 发送结束信号，获取最终结果
-        val finalResult = asrEngine.infer(ByteArray(0), isFinished = true)
-        runOnUiThread {
-            onFinalResult(finalResult)
+            // 发送结束信号，获取最终结果
+            android.util.Log.d("MainActivity", "Getting final result...")
+            val finalResult = asrEngine.infer(ByteArray(0), isFinished = true)
+            android.util.Log.i("MainActivity", "Final result: $finalResult")
+            runOnUiThread {
+                onFinalResult(finalResult)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Error in stopRecognition", e)
         }
     }
 
