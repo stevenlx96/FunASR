@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                 isInitialized = success
                 android.util.Log.i("MainActivity", "isInitialized state set to: $isInitialized")
                 statusText = if (success) {
-                    "✓ 引擎已就绪，长按按钮开始录音"
+                    "✓ 引擎已就绪，点击按钮开始录音"
                 } else {
                     "✗ 引擎初始化失败"
                 }
@@ -157,44 +157,33 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                // 录音按钮（长按录音）
+                // 录音按钮（点击开始/停止录音）
                 Button(
                     onClick = {
-                        android.util.Log.d("MainActivity", "Button onClick (should not be used)")
-                    },
-                    modifier = Modifier
-                        .size(120.dp)
-                        .pointerInput(isInitialized) {
-                            android.util.Log.d("MainActivity", "pointerInput initialized, isInitialized=$isInitialized")
-                            detectTapGestures(
-                                onPress = {
-                                    android.util.Log.i("MainActivity", "========== BUTTON PRESSED ==========")
-                                    android.util.Log.d("MainActivity", "isInitialized=$isInitialized")
-                                    if (isInitialized) {
-                                        // 按下 - 开始录音
-                                        android.util.Log.i("MainActivity", "Setting isRecording=true")
-                                        isRecording = true
-                                        startRecognition(
-                                            onResult = { result ->
-                                                recognitionText = result
-                                            }
-                                        )
-                                        android.util.Log.d("MainActivity", "Waiting for release...")
-                                        tryAwaitRelease()
-                                        android.util.Log.i("MainActivity", "========== BUTTON RELEASED ==========")
-                                        // 释放 - 停止录音
-                                        isRecording = false
-                                        stopRecognition(
-                                            onFinalResult = { result ->
-                                                recognitionText = result
-                                            }
-                                        )
-                                    } else {
-                                        android.util.Log.w("MainActivity", "Button pressed but engine not initialized!")
-                                    }
+                        android.util.Log.i("MainActivity", "========== BUTTON CLICKED ==========")
+                        android.util.Log.d("MainActivity", "isRecording=$isRecording, isInitialized=$isInitialized")
+
+                        if (isRecording) {
+                            // 当前正在录音 - 停止录音
+                            android.util.Log.i("MainActivity", "Stopping recording...")
+                            isRecording = false
+                            stopRecognition(
+                                onFinalResult = { result ->
+                                    recognitionText = result
                                 }
                             )
-                        },
+                        } else {
+                            // 当前未录音 - 开始录音
+                            android.util.Log.i("MainActivity", "Starting recording...")
+                            isRecording = true
+                            startRecognition(
+                                onResult = { result ->
+                                    recognitionText = result
+                                }
+                            )
+                        }
+                    },
+                    modifier = Modifier.size(120.dp),
                     enabled = isInitialized,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isRecording)
@@ -204,7 +193,7 @@ class MainActivity : ComponentActivity() {
                     )
                 ) {
                     Text(
-                        text = if (isRecording) "录音中" else "长按\n录音",
+                        text = if (isRecording) "停止" else "开始\n录音",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -213,7 +202,11 @@ class MainActivity : ComponentActivity() {
 
                 // 说明文字
                 Text(
-                    text = if (isInitialized) "按住按钮说话，松开结束" else "等待初始化...",
+                    text = when {
+                        !isInitialized -> "等待初始化..."
+                        isRecording -> "点击停止按钮结束录音"
+                        else -> "点击按钮开始录音"
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
