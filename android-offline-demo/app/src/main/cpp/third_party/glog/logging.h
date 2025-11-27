@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 
-#ifdef __ANDROID__
+#ifdef ANDROID
 #include <android/log.h>
 #include <cstdlib>
 
@@ -17,15 +17,15 @@
 // Map glog LOG() macros to Android log
 #define LOG(severity) AndroidLog##severity()
 
-// Helper classes for streaming
-class AndroidLogInfo {
+// Helper classes for streaming (match glog severity names: INFO, WARNING, ERROR, FATAL)
+class AndroidLogINFO {
 public:
-    AndroidLogInfo() {}
-    ~AndroidLogInfo() {
+    AndroidLogINFO() {}
+    ~AndroidLogINFO() {
         __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s", stream_.str().c_str());
     }
     template<typename T>
-    AndroidLogInfo& operator<<(const T& value) {
+    AndroidLogINFO& operator<<(const T& value) {
         stream_ << value;
         return *this;
     }
@@ -33,14 +33,14 @@ private:
     std::ostringstream stream_;
 };
 
-class AndroidLogWarning {
+class AndroidLogWARNING {
 public:
-    AndroidLogWarning() {}
-    ~AndroidLogWarning() {
+    AndroidLogWARNING() {}
+    ~AndroidLogWARNING() {
         __android_log_print(ANDROID_LOG_WARN, LOG_TAG, "%s", stream_.str().c_str());
     }
     template<typename T>
-    AndroidLogWarning& operator<<(const T& value) {
+    AndroidLogWARNING& operator<<(const T& value) {
         stream_ << value;
         return *this;
     }
@@ -48,14 +48,14 @@ private:
     std::ostringstream stream_;
 };
 
-class AndroidLogError {
+class AndroidLogERROR {
 public:
-    AndroidLogError() {}
-    ~AndroidLogError() {
+    AndroidLogERROR() {}
+    ~AndroidLogERROR() {
         __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%s", stream_.str().c_str());
     }
     template<typename T>
-    AndroidLogError& operator<<(const T& value) {
+    AndroidLogERROR& operator<<(const T& value) {
         stream_ << value;
         return *this;
     }
@@ -63,15 +63,15 @@ private:
     std::ostringstream stream_;
 };
 
-class AndroidLogFatal {
+class AndroidLogFATAL {
 public:
-    AndroidLogFatal() {}
-    ~AndroidLogFatal() {
+    AndroidLogFATAL() {}
+    ~AndroidLogFATAL() {
         __android_log_print(ANDROID_LOG_FATAL, LOG_TAG, "%s", stream_.str().c_str());
         abort();  // Fatal errors should terminate
     }
     template<typename T>
-    AndroidLogFatal& operator<<(const T& value) {
+    AndroidLogFATAL& operator<<(const T& value) {
         stream_ << value;
         return *this;
     }

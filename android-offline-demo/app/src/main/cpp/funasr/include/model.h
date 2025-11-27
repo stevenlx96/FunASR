@@ -7,8 +7,11 @@
 #include "funasrruntime.h"
 #include "vocab.h"
 #include "phone-set.h"
+#ifndef ANDROID
+// FST not needed for Android offline deployment
 #include "fst/fstlib.h"
 #include "fst/symbol-table.h"
+#endif
 namespace funasr {
 class Model {
   public:
