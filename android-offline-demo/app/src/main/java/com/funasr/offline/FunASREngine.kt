@@ -42,8 +42,6 @@ class FunASREngine(private val context: Context) {
             val testResult = testConnection()
             Log.i(TAG, "JNI test: $testResult")
 
-            // TODO: 集成真实模型后取消注释
-            /*
             // 1. 从assets复制模型到缓存目录
             val modelDir = copyModelsFromAssets()
             Log.i(TAG, "Models copied to: $modelDir")
@@ -62,11 +60,6 @@ class FunASREngine(private val context: Context) {
                 native.nativeUninit(asrHandle)
                 return false
             }
-            */
-
-            // 临时模拟初始化（测试阶段）
-            asrHandle = 123456789L
-            onlineHandle = 987654321L
 
             isInitialized = true
             Log.i(TAG, "FunASR engine initialized successfully")
@@ -129,7 +122,6 @@ class FunASREngine(private val context: Context) {
 
     /**
      * 从assets复制模型文件到缓存目录
-     * TODO: 集成真实模型后使用此函数
      */
     private fun copyModelsFromAssets(): String {
         val modelDir = File(context.cacheDir, "models")

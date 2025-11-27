@@ -1,10 +1,11 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
+#include <map>
 
-// TODO: 在集成FunASR C++代码后，取消注释以下头文件
-// #include "funasrruntime.h"
-// #include "com-define.h"
+// FunASR headers
+#include "funasrruntime.h"
+#include "com-define.h"
 
 #define LOG_TAG "FunASR-JNI"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -41,8 +42,6 @@ Java_com_funasr_offline_FunASRNative_nativeInit(
     const char *model_path = env->GetStringUTFChars(modelDir, nullptr);
     LOGI("Initializing FunASR with model dir: %s, threads: %d", model_path, threadNum);
 
-    // TODO: 集成FunASR后取消注释
-    /*
     std::map<std::string, std::string> model_paths;
     model_paths.insert({MODEL_DIR, model_path});
     model_paths.insert({QUANTIZE, "true"});  // 使用量化模型
@@ -59,12 +58,6 @@ Java_com_funasr_offline_FunASRNative_nativeInit(
 
     LOGI("FunASR initialized successfully, handle: %p", asr_handle);
     return (jlong) asr_handle;
-    */
-
-    // 临时返回值（集成FunASR前）
-    env->ReleaseStringUTFChars(modelDir, model_path);
-    LOGI("FunASR initialization placeholder - returning mock handle");
-    return 123456789L;  // Mock handle
 }
 
 /**
@@ -78,10 +71,8 @@ Java_com_funasr_offline_FunASRNative_nativeOnlineInit(
         jobject thiz,
         jlong asrHandle) {
 
-    LOGI("Initializing online handle from ASR handle: %ld", asrHandle);
+    LOGI("Initializing online handle from ASR handle: %lld", (long long)asrHandle);
 
-    // TODO: 集成FunASR后取消注释
-    /*
     FUNASR_HANDLE asr_handle = (FUNASR_HANDLE) asrHandle;
 
     // 初始化在线流式特征
@@ -96,11 +87,6 @@ Java_com_funasr_offline_FunASRNative_nativeOnlineInit(
 
     LOGI("Online handle initialized successfully, handle: %p", online_handle);
     return (jlong) online_handle;
-    */
-
-    // 临时返回值（集成FunASR前）
-    LOGI("Online handle initialization placeholder - returning mock handle");
-    return 987654321L;  // Mock handle
 }
 
 /**
@@ -122,11 +108,9 @@ Java_com_funasr_offline_FunASRNative_nativeInfer(
     jbyte *audio_buffer = env->GetByteArrayElements(audioData, nullptr);
     jsize audio_len = env->GetArrayLength(audioData);
 
-    LOGD("Inferring audio data, handle: %ld, length: %d, finished: %d",
-         onlineHandle, audio_len, isFinished);
+    LOGD("Inferring audio data, handle: %lld, length: %d, finished: %d",
+         (long long)onlineHandle, audio_len, isFinished);
 
-    // TODO: 集成FunASR后取消注释
-    /*
     FUNASR_HANDLE online_handle = (FUNASR_HANDLE) onlineHandle;
 
     // 调用推理
@@ -158,19 +142,6 @@ Java_com_funasr_offline_FunASRNative_nativeInfer(
     FunASRFreeResult(result);
 
     return jresult;
-    */
-
-    // 临时返回值（集成FunASR前）
-    env->ReleaseByteArrayElements(audioData, audio_buffer, JNI_ABORT);
-
-    // 返回模拟结果
-    if (isFinished) {
-        LOGI("Returning mock final result");
-        return env->NewStringUTF("{\"text\":\"这是模拟的识别结果\",\"mode\":\"offline\"}");
-    } else {
-        LOGD("Returning mock partial result");
-        return env->NewStringUTF("{\"text\":\"实时识别...\",\"mode\":\"online\"}");
-    }
 }
 
 /**
@@ -183,15 +154,12 @@ Java_com_funasr_offline_FunASRNative_nativeReset(
         jobject thiz,
         jlong onlineHandle) {
 
-    LOGI("Resetting online handle: %ld", onlineHandle);
+    LOGI("Resetting online handle: %lld", (long long)onlineHandle);
 
-    // TODO: 集成FunASR后取消注释
-    /*
     FUNASR_HANDLE online_handle = (FUNASR_HANDLE) onlineHandle;
     FunASRReset(online_handle);
-    */
 
-    LOGI("Online handle reset (mock)");
+    LOGI("Online handle reset successfully");
 }
 
 /**
@@ -204,15 +172,12 @@ Java_com_funasr_offline_FunASRNative_nativeUninit(
         jobject thiz,
         jlong asrHandle) {
 
-    LOGI("Uninitializing FunASR handle: %ld", asrHandle);
+    LOGI("Uninitializing FunASR handle: %lld", (long long)asrHandle);
 
-    // TODO: 集成FunASR后取消注释
-    /*
     FUNASR_HANDLE asr_handle = (FUNASR_HANDLE) asrHandle;
     FunASRUninit(asr_handle);
-    */
 
-    LOGI("FunASR uninitialized (mock)");
+    LOGI("FunASR uninitialized successfully");
 }
 
 } // extern "C"
