@@ -27,6 +27,10 @@ using namespace std;
 // third part
 #if defined(__APPLE__)
 #include <onnxruntime/onnxruntime_cxx_api.h>
+#elif defined(__ANDROID__)
+// Android: disable ITN (Inverse Text Normalization) to avoid OpenFST dependency
+#include "onnxruntime_run_options_config_keys.h"
+#include "onnxruntime_cxx_api.h"
 #else
 #include "onnxruntime_run_options_config_keys.h"
 #include "onnxruntime_cxx_api.h"
@@ -36,7 +40,10 @@ using namespace std;
 
 #include "kaldi-native-fbank/csrc/feature-fbank.h"
 #include "kaldi-native-fbank/csrc/online-feature.h"
+#ifndef __ANDROID__
+// WFST decoder not needed for Android offline deployment
 #include "kaldi/decoder/lattice-faster-online-decoder.h"
+#endif
 // mine
 #include <glog/logging.h>
 

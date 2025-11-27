@@ -14,6 +14,7 @@ include_directories(
     "${FUNASR_SRC_DIR}/src"
     "${THIRD_PARTY_DIR}"
     "${THIRD_PARTY_DIR}/yaml-cpp/include"
+    "${THIRD_PARTY_DIR}/kaldi-native-fbank"
     "${THIRD_PARTY_DIR}/kaldi-native-fbank/kaldi-native-fbank/csrc"
 )
 
